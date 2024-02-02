@@ -316,6 +316,11 @@ def config_json(what_config):
         data["payload_install"] = "install"
         data['release_url'] = "https://github.com/hjelev/rpi-mqtt-monitor/releases/tag/" + version
         data['entity_picture'] = "https://masoko.net/rpi-mqtt-monitor.png"
+    elif what_config == "status":
+        data["entity_category"] = "diagnostic"
+        data["device_class"] = "connectivity"
+        data["payload_on"] = "online"
+        data["payload_off"] = "offline"
     else:
         return ""
     # Return our built discovery config
@@ -437,6 +442,9 @@ def publish_to_mqtt(cpu_load=0, cpu_temp=0, used_space=0, voltage=0, sys_clock_s
         client.publish(config.mqtt_topic_prefix + "/" + hostname + "/rpi5_fan_speed", rpi5_fan_speed, qos=config.qos, retain=config.retain)
 
         # client.publish(config.mqtt_topic_prefix + "/" + hostname + "/git_update", git_update, qos=config.qos, retain=config.retain)
+    if config.discovery_messages:
+        client.publish("homeassistant/binary_sensor/" + config.mqtt_topic_prefix + "/" + hostname + "_status/config",
+                       config_json('status'), qos=config.qos)
     # disconnect from mqtt server
     client.disconnect()
 
